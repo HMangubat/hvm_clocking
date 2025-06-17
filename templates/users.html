@@ -1,0 +1,318 @@
+{{define "users"}}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Users - Pigeon Clocking</title>
+    <link rel="stylesheet" href="/static/assets/dashboard.css" />
+    <link rel="stylesheet" href="/static/assets/user.css" />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css?family=Inter:400,500,600&display=swap"
+    />
+    <style>
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: #f9fafb;
+        margin: 0;
+      }
+
+      .content {
+        padding: 2rem;
+      }
+
+      .card {
+        background: white;
+        border-radius: 8px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      }
+
+      h2 {
+        margin-top: 0;
+        font-size: 1.5rem;
+        color: #333;
+      }
+
+      .btn-add-user {
+        background-color: #2563eb;
+        color: #fff;
+        border: none;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-weight: 500;
+        margin-bottom: 1rem;
+        cursor: pointer;
+      }
+
+      .btn-add-user:hover {
+        background-color: #1e40af;
+      }
+
+      .user-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 1rem;
+      }
+
+      .user-table th,
+      .user-table td {
+        padding: 0.75rem;
+        text-align: left;
+        border-bottom: 1px solid #e5e7eb;
+      }
+
+      .user-table th {
+        background-color: #f3f4f6;
+        font-weight: 600;
+        color: #374151;
+      }
+
+      .user-table td button {
+        margin-right: 0.3rem;
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+      }
+
+      .user-table td button:hover {
+        opacity: 0.8;
+      }
+
+      .modal {
+        display: none;
+        position: fixed;
+        z-index: 50;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.4);
+        justify-content: center;
+        align-items: center;
+      }
+
+      .modal.show {
+        display: flex;
+      }
+
+      .modal-content {
+        background: white;
+        border-radius: 8px;
+        padding: 2rem;
+        width: 100%;
+        max-width: 400px;
+      }
+
+      .modal-content h3 {
+        margin-top: 0;
+      }
+
+      .modal-content input,
+      .modal-content button {
+        width: 100%;
+        margin-top: 0.5rem;
+        padding: 0.6rem;
+        font-size: 1rem;
+        border-radius: 4px;
+        border: 1px solid #d1d5db;
+      }
+
+      .modal-content button {
+        background-color: #2563eb;
+        color: white;
+        margin-top: 1rem;
+        border: none;
+      }
+
+      .modal-content button:hover {
+        background-color: #1d4ed8;
+      }
+
+      .modal-content .cancel {
+        background-color: #6b7280;
+      }
+
+      .modal-content .cancel:hover {
+        background-color: #4b5563;
+      }
+    </style>
+  </head>
+  <body>
+    {{template "sidebar" .}}
+
+    <div class="main-content">
+      {{template "topbar" .}}
+      <div class="content">
+        <div class="card">
+          <h2>👤 User Management</h2>
+          <button class="btn-add-user" onclick="showAddUserModal()">
+            ➕ Add User
+          </button>
+          <table class="user-table">
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Full Name</th>
+                <th>Email</th>
+                <th>Phone</th>
+                <th>Role</th>
+                <th>Created</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="userTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add User Modal -->
+    <div id="addUserModal" class="modal">
+      <div class="modal-content">
+        <h3>Add New User</h3>
+        <form id="addUserForm">
+          <input type="text" placeholder="Username" name="username" required />
+          <input
+            type="password"
+            placeholder="Password"
+            name="password"
+            required
+          />
+          <input type="text" placeholder="Full Name" name="full_name" />
+          <input type="email" placeholder="Email" name="email" />
+          <input type="text" placeholder="Phone Number" name="phone_number" />
+          <button type="submit">✅ Register</button>
+          <button type="button" class="cancel" onclick="hideAddUserModal()">
+            ❌ Cancel
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div id="editModal" class="modal">
+      <div class="modal-content">
+        <h3>Edit User</h3>
+        <input type="hidden" id="editUserId" />
+        <input type="text" id="editFullName" placeholder="Full Name" />
+        <input type="email" id="editEmail" placeholder="Email" />
+        <input type="text" id="editPhone" placeholder="Phone Number" />
+        <button onclick="submitEdit()">💾 Save</button>
+        <button class="cancel" onclick="closeModal()">❌ Cancel</button>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", fetchUsers);
+
+      function fetchUsers() {
+        fetch("/api/users")
+          .then((res) => res.json())
+          .then((users) => {
+            const tbody = document.getElementById("userTableBody");
+            tbody.innerHTML = users
+              .map(
+                (user) => `
+            <tr>
+              <td>${user.username}</td>
+              <td>${user.full_name}</td>
+              <td>${user.email}</td>
+              <td>${user.phone_number}</td>
+              <td>${user.role}</td>
+              <td>${user.created_at}</td>
+              <td>
+                <button onclick='editUser(${JSON.stringify(user)})'>✏️</button>
+                <button onclick='deleteUser(${user.user_id})'>🗑️</button>
+              </td>
+            </tr>
+          `
+              )
+              .join("");
+          });
+      }
+
+      function showAddUserModal() {
+        document.getElementById("addUserModal").classList.add("show");
+      }
+
+      function hideAddUserModal() {
+        document.getElementById("addUserModal").classList.remove("show");
+      }
+
+      function editUser(user) {
+        document.getElementById("editUserId").value = user.user_id;
+        document.getElementById("editFullName").value = user.full_name;
+        document.getElementById("editEmail").value = user.email;
+        document.getElementById("editPhone").value = user.phone_number;
+        document.getElementById("editModal").classList.add("show");
+      }
+
+      function closeModal() {
+        document.getElementById("editModal").classList.remove("show");
+      }
+
+      function submitEdit() {
+        const id = document.getElementById("editUserId").value;
+        const fullName = document.getElementById("editFullName").value;
+        const email = document.getElementById("editEmail").value;
+        const phone = document.getElementById("editPhone").value;
+
+        fetch(`/api/users/${id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            full_name: fullName,
+            email: email,
+            phone_number: phone,
+          }),
+        })
+          .then((res) => res.json())
+          .then(() => {
+            alert("✅ User updated!");
+            closeModal();
+            fetchUsers();
+          })
+          .catch((err) => console.error("❌ Update failed:", err));
+      }
+
+      document
+        .getElementById("addUserForm")
+        .addEventListener("submit", function (e) {
+          e.preventDefault();
+          const formData = new FormData(e.target);
+          const data = Object.fromEntries(formData.entries());
+
+          console.log(data);
+
+          fetch("/register", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(data),
+          }).then((res) => {
+            if (res.ok) {
+              hideAddUserModal();
+              fetchUsers();
+            } else {
+              alert("❌ Error registering user");
+            }
+          });
+        });
+
+      function deleteUser(userId) {
+        if (confirm("Are you sure you want to delete this user?")) {
+          fetch(`/api/users/${userId}`, { method: "DELETE" }).then((res) => {
+            if (res.ok) {
+              alert("🗑️ User deleted");
+              fetchUsers();
+            } else {
+              alert("❌ Failed to delete user");
+            }
+          });
+        }
+      }
+    </script>
+  </body>
+</html>
+{{end}}

@@ -1,0 +1,23 @@
+{{define "dashboard"}}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Dashboard - Pigeon Clocking</title>
+    <link rel="stylesheet" href="/static/assets/dashboard.css" />
+  </head>
+  <body>
+    {{template "sidebar" .}}
+    <div class="main-content">
+      {{template "topbar" .}}
+
+      <div class="content">
+        <div class="card">
+          <h2>📊 Overview</h2>
+          <p>This is your main dashboard. Use the sidebar to navigate.</p>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+{{end}}

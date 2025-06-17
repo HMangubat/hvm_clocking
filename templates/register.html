@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Register - Pigeon Clocking</title>
+    <link rel="stylesheet" href="../static/assets/styles.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1>Register</h1>
+      <form action="/register" method="post">
+        <label for="username">Username:</label><br />
+        <input type="text" id="username" name="username" required /><br /><br />
+
+        <label for="password">Password:</label><br />
+        <input
+          type="password"
+          id="password"
+          name="password"
+          required
+        /><br /><br />
+
+        <label for="full_name">Full Name:</label><br />
+        <input type="text" id="full_name" name="full_name" /><br /><br />
+
+        <label for="email">Email:</label><br />
+        <input type="email" id="email" name="email" /><br /><br />
+
+        <label for="phone_number">Phone:</label><br />
+        <input type="text" id="phone_number" name="phone_number" /><br /><br />
+
+        <button type="submit">Register</button>
+      </form>
+      <p>Already have an account? <a href="/login">Login</a></p>
+    </div>
+  </body>
+</html>

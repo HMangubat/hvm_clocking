@@ -1,0 +1,10 @@
+{{define "sidebar"}}
+<div class="sidebar">
+  <h2>📦 Clocking App</h2>
+  <a href="/dashboard" class="{{if eq .ActivePage "dashboard"}}active{{end}}">🏠 Dashboard</a>
+  <a href="/users" class="{{if eq .ActivePage "users"}}active{{end}}">👤 Users</a>
+  <a href="/pigeons" class="{{if eq .ActivePage "pigeons"}}active{{end}}">🕊️ Pigeons</a>
+  <a href="/races" class="{{if eq .ActivePage "races"}}active{{end}}">🏁 Races</a>
+  <a href="/login">🔒 Logout</a>
+</div>
+{{end}}
