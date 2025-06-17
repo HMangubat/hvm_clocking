@@ -94,5 +94,17 @@ func main() {
 	app.Get("/lofts", handlers.GetAllLofts(db))
 	app.Get("/races", handlers.GetAllRaces(db))
 
+	app.Post("/api/clubs", handlers.CreateClubHandler(db))
+	app.Get("/api/clubs", handlers.GetAllClubsHandler(db))
+
+	app.Post("/api/devices", handlers.CreateDeviceHandler(db))
+	app.Post("/api/lofts", handlers.CreateLoftHandler(db))
+	app.Post("/api/pigeons", handlers.CreatePigeonHandler(db))
+	app.Post("/api/races", handlers.CreateRaceHandler(db))
+	app.Post("/api/race-participants", handlers.RegisterPigeonToRaceHandler(db))
+	app.Post("/api/clockings", handlers.ClockPigeonHandler(db))
+	app.Post("/api/race-results", handlers.InsertRaceResultHandler(db))
+	app.Post("/api/audit-logs", handlers.LogAuditActionHandler(db))
+
 	app.Listen(":2000")
 }
